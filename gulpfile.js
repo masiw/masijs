@@ -5,7 +5,7 @@ let babel = require('gulp-babel')
 let rename = require('gulp-rename')
 let concat = require('gulp-concat')
 let copy = require('gulp-contrib-copy')
-let clean = require('gulp-clean')
+let del = require('del')
 
 gulp.task('buildTests', () => {
   return gulp.src('./test/*.js')
@@ -50,16 +50,15 @@ gulp.task('copy', () => {
 })
 
 gulp.task('clean-build', () => {
-  return gulp.src(['build', 'build-tests'])
-    .pipe(clean())
+  return del(['build', 'build-tests'])
 })
 
 gulp.task('clean', () => {
-  return gulp.src('dest')
-    .pipe(clean())
+  return del('dist')
 })
 
 gulp.task('default',
 	  ['clean', 'lint', 'build', 'test', 'copy'],
 	  () => {
+	      return del(['build', 'build-tests']) 
 })
