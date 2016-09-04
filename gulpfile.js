@@ -1,26 +1,21 @@
-let gulp = require('gulp')
-let mocha = require('gulp-mocha')
-let eslint = require('gulp-eslint')
-let babel = require('gulp-babel')
-let rename = require('gulp-rename')
-let concat = require('gulp-concat')
-let copy = require('gulp-contrib-copy')
-let del = require('del')
+var gulp = require('gulp')
+  , eslint = require('gulp-eslint')
+  , babel = require('gulp-babel')
+  , concat = require('gulp-concat')
+  , del = require('del')
+  ,sourcemaps = require('gulp-sourcemaps')
 
-gulp.task('buildTests', () => {
-  return gulp.src('./test/*.js')
-    .pipe(babel({
-      presets: ['latest']
-    }))
-    .pipe(concat('tests.js'))
-    .pipe(gulp.dest('./build-tests/'))
-})
-	  
-gulp.task('test', ['buildTests'], () => {
-  gulp.src('./build-tests/tests.js', {read:false})
+gulp.task('test', () => {
+
+  var mocha = require('gulp-mocha')
+  
+  gulp.src('./test/*.test.js', {read:false})
     .pipe(mocha({
-      reporter: 'spec',
-      timeout: 2000
+        reporter: 'spec'
+      , timeout: 2000
+      , compilers: {
+	js: babel
+      }
     }))
 })
 
@@ -35,22 +30,10 @@ gulp.task('lint', () => {
 
 gulp.task('build', () => {
   return gulp.src('src/**/*.js')
-    .pipe(babel({
-      presets: ['latest']
-    }))
-    .pipe(rename('masi.js'))
-    .pipe(gulp.dest('./build/'))
-})
-
-gulp.task('copy', () => {
-  return gulp.src('build/*.js')
-    .pipe(copy())
-    .pipe(gulp.dest('./dist/'))
-
-})
-
-gulp.task('clean-build', () => {
-  return del(['build', 'build-tests'])
+    .pipe(sourcemaps.init())
+    .pipe(babel())
+    .pipe(concat('masi.js'))
+    .pipe(gulp.dest('dist'))
 })
 
 gulp.task('clean', () => {
@@ -58,7 +41,6 @@ gulp.task('clean', () => {
 })
 
 gulp.task('default',
-	  ['clean', 'lint', 'build', 'test', 'copy'],
+	  ['clean', 'lint', 'build', 'test'],
 	  () => {
-	      return del(['build', 'build-tests']) 
 })
